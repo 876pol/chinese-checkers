@@ -3,3 +3,4 @@ web/node_modules
 web/package-lock.json
 web/.parcel-cache
 web/dist
+venv

@@ -37,16 +37,15 @@ const s = (p5): void => {
     p5.drawer = new P5Drawer();
     p5.mousePublisher = new P5MousePublisher();
     p5.keyPressedPublisher = new P5KeyPressedPublisher();
-    // p5.webSocketIO = new WebSocketIO(
-    //     location.href.replace('http://', 'ws://')
-    //         .replace('https://', 'wss://')
-    //     + 'ws'
-    // );
     p5.activeScreen = "";
 
     p5.setup = (): void => {
         p5.createCanvas(DisplayConstants.CANVAS_WIDTH, DisplayConstants.CANVAS_HEIGHT);
-        p5.webSocketIO = new WebSocketIO("wss://chinese-checkers-multiplayer-online.fly.dev/ws");
+        p5.webSocketIO = new WebSocketIO(
+            location.href.replace('http://', 'ws://')
+                .replace('https://', 'wss://')
+            + 'ws'
+        );
         p5.menuMediator = new MenuMediator();
         p5.lobbyMediator = new LobbyMediator();
         p5.gameMediator = new GameMediator();

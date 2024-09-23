@@ -1,0 +1,3 @@
+fastapi[standard]
+websockets
+starlette~=0.37.2
