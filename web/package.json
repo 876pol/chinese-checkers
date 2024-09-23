@@ -1,0 +1,19 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel index.html",
+    "build": "parcel build dist"
+  },
+  "author": "876pol",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.12.0"
+  },
+  "dependencies": {
+    "@types/p5": "^1.7.6",
+    "p5": "^1.10.0"
+  }
+}
