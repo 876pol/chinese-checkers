@@ -1,17 +1,11 @@
 import * as p5 from 'p5';
-import {Colors, DisplayConstants, Fonts, Images} from "./Constants";
-import {Displayable} from "./DisplayableBase";
-import {Clickable} from "./Clickable";
-import {KeyboardListener} from "./KeyboardListener";
+import {DisplayConstants, Fonts, Images} from "./Constants";
 import {MenuMediator} from "./MenuMediator";
 import {WebSocketIO} from "./WebSocketIO";
 import {ReconnectingDisplayer} from "./ReconnectingDisplayer";
-import {CircleGeometry} from "./Geometry";
-import {DisplayCoordinate} from "./Coordinate";
-import {Button, ButtonImageDisplayer, CircleButtonDisplayer} from "./Button";
 import {LobbyMediator} from "./LobbyMediator";
-import {GameBoardBackgroundDisplayer} from "./GameBoardBackgroundDisplayer";
 import {GameMediator} from "./GameMediator";
+import {P5Drawer, P5KeyPressedPublisher, P5MousePublisher} from "./EventPublisher";
 
 export class P5Singleton {
     private static instance: p5 | null = null;
@@ -38,50 +32,6 @@ export class P5Singleton {
     }
 }
 
-abstract class P5EventPublisher<T> {
-    private subscribers: T[] = [];
-
-    public add(subscriber: T): void {
-        if (this.subscribers.indexOf(subscriber) === -1) {
-            this.subscribers.push(subscriber);
-        }
-    }
-
-    public remove(subscriber: T): void {
-        const index: number = this.subscribers.indexOf(subscriber);
-        if (index !== -1) {
-            this.subscribers.splice(index, 1);
-        }
-    }
-
-    public publish(): void {
-        const subscribersCopy: T[] = this.subscribers.slice(); // Create a shallow copy
-        for (const subscriber: T of subscribersCopy) {
-            this.notifySubscriber(subscriber);
-        }
-    }
-
-    protected abstract notifySubscriber(subscriber: T): void;
-}
-
-export class P5Drawer extends P5EventPublisher<Displayable> {
-    protected notifySubscriber(subscriber: Displayable): void {
-        subscriber.display();
-    }
-}
-
-export class P5MousePublisher extends P5EventPublisher<Clickable> {
-    protected notifySubscriber(subscriber: Clickable): void {
-        subscriber.onMouseClick();
-    }
-}
-
-export class P5KeyPressedPublisher extends P5EventPublisher<KeyboardListener> {
-    protected notifySubscriber(subscriber: KeyboardListener): void {
-        subscriber.onKeyPressed();
-    }
-}
-
 
 const s = (p5): void => {
     p5.drawer = new P5Drawer();
@@ -100,6 +50,7 @@ const s = (p5): void => {
         p5.menuMediator = new MenuMediator();
         p5.lobbyMediator = new LobbyMediator();
         p5.gameMediator = new GameMediator();
+        p5.reconnectingDisplayer = new ReconnectingDisplayer();
         p5.switchToMenu();
     };
 
@@ -108,7 +59,7 @@ const s = (p5): void => {
         p5.drawer.publish();
         if (!p5.webSocketIO.connected()) {
             p5.webSocketIO.connect();
-            new ReconnectingDisplayer().display();
+            p5.reconnectingDisplayer.display();
         }
     };
 

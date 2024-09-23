@@ -1,5 +1,6 @@
 import {P5Singleton} from "./App";
 import {Player} from "./Constants";
+import {CookieManager} from "./CookieManager";
 
 export interface Connection {
     name: string;
@@ -27,11 +28,11 @@ export interface GameMessage {
     prev_moves: number[][]; // array of length 2 arrays representing the most recent move
     connections: Connection[];
     user_id: string; // unique code for the current user, allows for reconnections
-    color: Player; // player color
+    color: Player; // current player color
 }
 
 export class WebSocketIO {
-    websocket: WebSocket;
+    private websocket: WebSocket;
     private numReconnectAttempts: number = 0;
     private lastReconnectAttempt: Date = new Date(0);
     private p5: any;
@@ -63,15 +64,19 @@ export class WebSocketIO {
 
     private onopen(): void {
         this.numReconnectAttempts = 0;
+        this.p5.switchToMenu();
+        this.sendReconnectGame(CookieManager.get("gameCode"), CookieManager.get("userId"));
     }
 
     private onmessage(event: MessageEvent): void {
         const msg = JSON.parse(event.data);
-        console.log(msg);
         if (msg.type === "status") {
             if (msg.status === "InvalidWebSocketAction: Game does not exist") {
                 this.p5.switchToMenu();
                 this.p5.menuMediator.notify(this, msg);
+            } else if (msg.status === "Another connection has been established with the same user_id!") {
+                this.websocket.close();
+                this.numReconnectAttempts = 10;
             }
         } else if (msg.type === "game_state") {
             if (msg.status === 0) { // lobby

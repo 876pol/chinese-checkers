@@ -1,6 +1,6 @@
 import * as p5 from "p5";
 import {P5Singleton} from "./App";
-import {GameCoordinate} from "./Coordinate";
+import {GameCoordinate, Vector2D} from "./Coordinate";
 
 export enum Player {
     SPECTATOR = 0,
@@ -55,6 +55,15 @@ export class GameConstants {
         [Player.ORANGE]: Player.BLUE,
         [Player.PURPLE]: Player.YELLOW,
     };
+
+    static DIR: Vector2D[] = [
+        new Vector2D(-1, -1),
+        new Vector2D(-1, 0),
+        new Vector2D(0, -1),
+        new Vector2D(0, 1),
+        new Vector2D(1, 0),
+        new Vector2D(1, 1),
+    ];
 }
 
 export class Colors {
@@ -104,6 +113,8 @@ export class Colors {
     static readonly TEXT: string = "#000000";
     static readonly TEXT_LIGHT: string = "#808080";
     static readonly TEXT_ERROR: string = "#ff1414";
+    static readonly PREVIOUS_MOVE: string = "#8c8c8c";
+    static readonly CURRENT_MOVE: string = "#404040";
 }
 
 export class DisplayConstants {

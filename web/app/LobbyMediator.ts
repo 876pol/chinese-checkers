@@ -21,7 +21,7 @@ enum LobbyPlayerStatus {
     EMPTY = 0,
     BOT = 1,
     HUMAN = 2,
-    CURRENT_PLAYER = 3
+    LOCAL = 3
 }
 
 export class LobbyPlayer {
@@ -49,9 +49,9 @@ export class LobbyPlayer {
         this.playerStatus = LobbyPlayerStatus.HUMAN;
     }
 
-    setCurrentPlayer(username: string): void {
+    setLocal(username: string): void {
         this.username += username + " (You)"
-        this.playerStatus = LobbyPlayerStatus.CURRENT_PLAYER;
+        this.playerStatus = LobbyPlayerStatus.LOCAL;
     }
 }
 
@@ -161,24 +161,7 @@ export class LobbyMediator implements Mediator {
             this.p5.switchToMenu();
             this.p5.webSocketIO.disconnect();
         } else if (sender === this.p5.webSocketIO) {
-            if (msg.type === "game_state") {
-                msg = msg as LobbyMessage;
-                this.gameCodeDisplayer.setGameCode(msg.id);
-                for (let player: Player = Player.RED; player <= Player.PURPLE; player++) {
-                    this.lobbyPlayerArr.set(player, new LobbyPlayer(player));
-                }
-                for (const connection: Connection of msg.connections) {
-                    if (connection.color === Player.SPECTATOR) continue;
-                    if (connection.is_bot) {
-                        this.lobbyPlayerArr.get(connection.color).setBot();
-                    } else if (connection.color === msg.color) {
-                        this.lobbyPlayerArr.get(connection.color).setCurrentPlayer(connection.name);
-                    } else {
-                        this.lobbyPlayerArr.get(connection.color).setHuman(connection.name);
-                    }
-                }
-                this.refresh();
-            }
+            this.handleWebSocketMessage(msg);
         } else if (sender === this.startButton) {
             this.p5.webSocketIO.sendStartGame();
         } else {
@@ -198,6 +181,27 @@ export class LobbyMediator implements Mediator {
                 if (sender !== button) continue;
                 this.p5.webSocketIO.sendRemoveBot(player)
             }
+        }
+    }
+
+    private handleWebSocketMessage(msg) {
+        if (msg.type === "game_state") {
+            msg = msg as LobbyMessage;
+            this.gameCodeDisplayer.setGameCode(msg.id);
+            for (let player: Player = Player.RED; player <= Player.PURPLE; player++) {
+                this.lobbyPlayerArr.set(player, new LobbyPlayer(player));
+            }
+            for (const connection: Connection of msg.connections) {
+                if (connection.color === Player.SPECTATOR) continue;
+                if (connection.is_bot) {
+                    this.lobbyPlayerArr.get(connection.color).setBot();
+                } else if (connection.color === msg.color) {
+                    this.lobbyPlayerArr.get(connection.color).setLocal(connection.name);
+                } else {
+                    this.lobbyPlayerArr.get(connection.color).setHuman(connection.name);
+                }
+            }
+            this.refresh();
         }
     }
 
@@ -254,7 +258,7 @@ export class LobbyMediator implements Mediator {
                 this.p5.mousePublisher.add(this.removeBotButtonArr.get(lobbyPlayer.player));
             } else if (lobbyPlayer.playerStatus === LobbyPlayerStatus.HUMAN) {
                 // no buttons
-            } else if (lobbyPlayer.playerStatus === LobbyPlayerStatus.CURRENT_PLAYER) {
+            } else if (lobbyPlayer.playerStatus === LobbyPlayerStatus.LOCAL) {
                 this.p5.drawer.add(this.exitButtonArr.get(lobbyPlayer.player));
                 this.p5.mousePublisher.add(this.exitButtonArr.get(lobbyPlayer.player));
             }

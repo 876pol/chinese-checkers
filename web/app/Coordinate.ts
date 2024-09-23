@@ -1,10 +1,27 @@
 import {DisplayConstants} from "./Constants";
 
-export class Vector2D {
+export abstract class Pair {
+    x: number;
+    y: number;
+
+    equals(other: Pair): boolean {
+        return this.x === other.x && this.y === other.y;
+    }
+
+    static arrContainsPair(arr: Pair[], obj: Pair) {
+        for (const e: Pair of arr) {
+            if (e.equals(obj)) return true;
+        }
+        return false;
+    }
+}
+
+export class Vector2D extends Pair {
     x: number;
     y: number;
 
     constructor(x: number, y: number) {
+        super();
         this.x = x;
         this.y = y;
     }
@@ -39,9 +56,18 @@ export class Vector2D {
     extend(extensionLength: number): Vector2D {
         return this.add(this.norm().multiply(extensionLength));
     }
+
+    rotate(degrees: number): Vector2D {
+        const radians = (Math.PI / 180) * degrees,
+            cos = Math.cos(radians),
+            sin = Math.sin(radians),
+            nx = (cos * this.x) + (sin * this.y),
+            ny = (cos * this.y) - (sin * this.x);
+        return new Vector2D(nx, ny);
+    }
 }
 
-export class GameCoordinate {
+export class GameCoordinate extends Pair {
     vector: Vector2D;
     private static readonly BOARD_SIZE: number = 17;
     private static readonly LIMITS: number[][] = [
@@ -50,6 +76,7 @@ export class GameCoordinate {
     ];
 
     constructor(vector: Vector2D) {
+        super();
         if (!GameCoordinate.isValid(vector)) throw new Error("Invalid GameCoordinate");
         this.vector = vector;
     }
@@ -66,7 +93,7 @@ export class GameCoordinate {
         return this.vector.y;
     }
 
-    private static isValid(coordinate: Vector2D): boolean {
+    static isValid(coordinate: Vector2D): boolean {
         return 0 <= coordinate.x && coordinate.x < this.BOARD_SIZE &&
             this.LIMITS[coordinate.x][0] <= coordinate.y && coordinate.y < this.LIMITS[coordinate.x][1];
     }
@@ -93,10 +120,29 @@ export class GameCoordinate {
     }
 }
 
-export class DisplayCoordinate {
+export class GameCoordinateArraySerializer {
+    static serialize(arr: GameCoordinate[]): number[][] {
+        const obj: number[][] = [];
+        for (const e: GameCoordinate of arr) {
+            obj.push([e.x, e.y]);
+        }
+        return obj;
+    }
+
+    static deserialize(obj: number[][]) {
+        const arr: GameCoordinate[] = [];
+        for (const e: number[] of obj) {
+            arr.push(GameCoordinate.fromCoordinates(e[0], e[1]));
+        }
+        return arr;
+    }
+}
+
+export class DisplayCoordinate extends Pair {
     vector: Vector2D
 
     constructor(vector: Vector2D) {
+        super();
         this.vector = vector;
     }
 
