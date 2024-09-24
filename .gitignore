@@ -5,3 +5,7 @@ web/.parcel-cache
 web/dist
 venv
 __pycache__
+.dockerignore
+Dockerfile
+fly.toml
+.github
