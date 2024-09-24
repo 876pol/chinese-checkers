@@ -1,17 +1,21 @@
-# chinese-checkers-multiplayer-online
+# chinese-checkers
 
-Chinese checkers website, supporting online play, written with p5.js and FastAPI. Contains an AI that uses a heuristic search algorithm.
+Chinese checkers website, supporting online play, written with TypeScript, p5.js, and FastAPI. Contains an AI that uses a heuristic search algorithm.
 
-Access the game at https://chinese-checkers-multiplayer-online.fly.dev/.
+Access the game at https://chinese-checkers.fly.dev/.
 
 ## Installation
 
 To install the server:
 
 ```bash
-git clone https://github.com/876pol/chinese-checkers-multiplayer-online
-cd chinese-checkers-multiplayer-online
+git clone https://github.com/876pol/chinese-checkers.git
+cd chinese-checkers
 pip install -r requirements.txt
+cd web
+npm install
+bash compile.sh
+cd ..
 ```
 
 To run the server:
