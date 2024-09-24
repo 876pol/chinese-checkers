@@ -11,6 +11,8 @@ To install the server:
 ```bash
 git clone https://github.com/876pol/chinese-checkers.git
 cd chinese-checkers
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 cd web
 npm install
